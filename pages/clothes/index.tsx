@@ -1,35 +1,3 @@
-import { GetServerSideProps } from "next";
-import React from "react";
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  try {
-    const clothes = [
-      {
-        id: 1,
-        name: "One",
-        price: 1234,
-      },
-      {
-        id: 2,
-        name: "Two",
-        price: 1234,
-      },
-    ];
-    return {
-      props: {
-        clothes,
-      },
-    };
-  } catch (err) {
-    console.error("Redis error:", err);
-    return {
-      props: {
-        clothes: [],
-      },
-    };
-  }
-};
-
 const Clothes = ({
   clothes,
 }: {
@@ -58,3 +26,31 @@ const Clothes = ({
 };
 
 export default Clothes;
+
+export const getServerSideProps = async () => {
+  try {
+    const clothes = [
+      {
+        id: 1,
+        name: "One",
+        price: 1234,
+      },
+      {
+        id: 2,
+        name: "Two",
+        price: 1234,
+      },
+    ];
+    return {
+      props: {
+        clothes,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        clothes: [],
+      },
+    };
+  }
+};

@@ -23,17 +23,30 @@ const Home = ({
 
   const handleFetchCatData = async () => {
     setIsApiLoading(true);
+
     const catData = await axios.get("http://localhost:3000/api/fetchCatFact");
-
     console.log(catData.data, "handleFetchCatData");
-
     setCatData(catData.data);
+
     setIsApiLoading(false);
   };
 
   const handleCacheInvalidation = async () => {
+    setIsApiLoading(true);
+
     await axios.get("http://localhost:3000/api/invalidateCatFact");
     console.log("CACHE Invalidated");
+
+    setIsApiLoading(false);
+  };
+
+  const handleUpdateData = async () => {
+    setIsApiLoading(true);
+
+    await axios.get("http://localhost:3000/api/updateCatFact");
+    console.log("Data updated");
+
+    setIsApiLoading(false);
   };
 
   useEffect(() => {
@@ -46,8 +59,11 @@ const Home = ({
     <div>
       <p>Home</p>
 
-      <button onClick={handleCacheInvalidation}>Invalidate cache</button>
-      <button onClick={handleFetchCatData}>Refetch</button>
+      <div className="flex gap-8 items-center">
+        <button onClick={handleCacheInvalidation}>Invalidate cache</button>
+        <button onClick={handleUpdateData}>Update</button>
+        <button onClick={handleFetchCatData}>Refetch</button>
+      </div>
 
       {isApiLoading ? <p>Loading...</p> : null}
 
@@ -66,11 +82,11 @@ const Home = ({
 
 export default Home;
 
-export async function getServerSideProps() {
+export const getServerSideProps = async () => {
   const data = await axios.get("http://localhost:3000/api/fetchCatFact");
   return {
     props: {
       data: data.data,
     },
   };
-}
+};
