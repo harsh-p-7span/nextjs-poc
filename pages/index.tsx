@@ -1,24 +1,65 @@
-import createRedisInstance from "@/lib/redis";
 import axios from "axios";
+import { useEffect, useState } from "react";
 
 const Home = ({
   data,
 }: {
   data: {
-    fact: string;
-    length: number;
+    catData: {
+      fact: string;
+      length: number;
+    };
+    message: string;
   };
 }) => {
-  console.log(data);
+  const [catData, setCatData] = useState<{
+    catData: {
+      fact: string;
+      length: number;
+    };
+    message: string;
+  }>();
+  const [isApiLoading, setIsApiLoading] = useState(false);
+
+  const handleFetchCatData = async () => {
+    setIsApiLoading(true);
+    const catData = await axios.get("http://localhost:3000/api/fetchCatFact");
+
+    console.log(catData.data, "handleFetchCatData");
+
+    setCatData(catData.data);
+    setIsApiLoading(false);
+  };
 
   const handleCacheInvalidation = async () => {
     await axios.get("http://localhost:3000/api/invalidateCatFact");
+    console.log("CACHE Invalidated");
   };
+
+  useEffect(() => {
+    console.log("I AM IN USE EFFECT", data);
+
+    setCatData(data);
+  }, [data]);
+
   return (
     <div>
       <p>Home</p>
 
       <button onClick={handleCacheInvalidation}>Invalidate cache</button>
+      <button onClick={handleFetchCatData}>Refetch</button>
+
+      {isApiLoading ? <p>Loading...</p> : null}
+
+      {catData ? (
+        <div className="mt-4 p-8 border border-red-400">
+          <p>Cat Fact</p>
+
+          <p>{catData.catData.fact}</p>
+
+          <p>{catData.message}</p>
+        </div>
+      ) : null}
     </div>
   );
 };
@@ -26,36 +67,10 @@ const Home = ({
 export default Home;
 
 export async function getServerSideProps() {
-  const redis = createRedisInstance();
-
-  const cachedData = await redis.get("catFact");
-
-  if (!cachedData) {
-    const catData = await axios.get("http://localhost:3000/api/fetchCatFact");
-
-    console.log({
-      catData: catData.data,
-      message: "This is API data.",
-    });
-
-    await redis.set("catFact", JSON.stringify(catData.data));
-
-    redis.quit();
-    return {
-      props: {
-        data: catData.data,
-      },
-    };
-  }
-
-  console.log({
-    catData: JSON.parse(cachedData),
-    message: "This is cached data.",
-  });
-
+  const data = await axios.get("http://localhost:3000/api/fetchCatFact");
   return {
     props: {
-      data: JSON.parse(cachedData),
+      data: data.data,
     },
   };
 }

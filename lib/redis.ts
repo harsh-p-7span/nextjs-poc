@@ -18,7 +18,7 @@ const createRedisInstance = () => {
     };
 
     if (config.port) {
-      options.port = +config.port;
+      options.port = config.port;
     }
 
     if (config.password) {
@@ -40,7 +40,7 @@ const createRedisInstance = () => {
 export default createRedisInstance;
 
 const config = {
-  host: process.env.REDIS_HOST,
-  password: process.env.REDIS_PASSWORD,
-  port: process.env.REDIS_PORT,
+  host: "localhost",
+  password: undefined,
+  port: 6379,
 };
